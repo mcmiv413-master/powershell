@@ -1,6 +1,6 @@
 ﻿param (
     [switch]$DEV=$true,
-    [switch]$destructive,
+    [switch]$destructive=$true,
     $clonedir='c:\temp\publictest', #Dir to create the clones in
     $githuburl='api.github.com',
     #$token = '', #API Token
@@ -117,15 +117,15 @@ Function Set-CloneBranch
         if( !$(Test-GitStatus))
         {
             Create-Clone -repo $repo -url $cloneurl | tee-object $gitlog -append
-            if (test-path $pwd\scripts) 
+            if (test-path $pwd\$scriptrepo) 
             { 
-                Set-Location scripts; 
+                Set-Location $scriptrepo; 
                 cmd /c "git checkout $branchname 2>&1"  | tee-object $gitlog -append;
                 if ($($(git remote -v) -join " ") -notlike "*$productionorg*"){ git remote add $($productionorg.ToLower()) "https://$username@$githuburl/$productionorg/$repo" }
                 git remote set-url --push $($productionorg.ToLower()) NO-PUSHING 
                 Set-Location ..
             } 
-            if (test-path $pwd\config) { Set-Location config; cmd /c "git checkout $branchname 2>&1"  | tee-object $gitlog -append; Set-Location ..} 
+            if (test-path $pwd\$configrepo) { Set-Location $configrepo; cmd /c "git checkout $branchname 2>&1"  | tee-object $gitlog -append; Set-Location ..} 
         }
     }   
 }
